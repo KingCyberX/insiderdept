@@ -1,0 +1,351 @@
+/* src/app/styles/chart.css - Complete file with all fixes */
+
+/* Fix for top empty space and ensuring content is visible */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Shrink the top header to minimize empty space */
+.bg-\[#131722\].border-b.border-\[#2a2e39\].py-2.px-4 {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* Fix the content layout to take full height */
+.flex.flex-1.overflow-hidden {
+  height: calc(100vh - 50px) !important;
+  overflow: hidden !important;
+}
+
+/* Make the chart container visible and properly sized */
+.flex-1.flex.flex-col.overflow-hidden {
+  height: calc(100vh - 50px) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Force the chart area to be visible and scrollable */
+.flex-1.overflow-y-auto,
+.flex-1.relative.overflow-hidden {
+  overflow-y: auto !important;
+  height: calc(100vh - 110px) !important; /* Header + controls */
+  min-height: 600px !important;
+}
+
+/* Ensure chart content is visible */
+.mt-10.mx-4,
+.px-4,
+.pt-12.pb-4.px-4 {
+  margin: 0 !important;
+  padding: 8px !important;
+  height: auto !important;
+  min-height: calc(100vh - 140px) !important;
+}
+
+/* Make sure each chart section is visible */
+.chart-panel-group {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 970px !important; /* Force minimum height */
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid #2a2e39 !important;
+  background-color: #131722 !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* CRITICAL: Force charts to be visible with specific heights */
+.open-interest-chart {
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
+  background-color: #131722 !important;
+}
+
+.candlestick-chart {
+  height: 400px !important;
+  min-height: 400px !important;
+  max-height: 400px !important;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
+  background-color: #131722 !important;
+}
+
+.volume-chart {
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
+  background-color: #131722 !important;
+}
+
+/* Force delta charts visibility */
+.delta-spot-chart,
+.delta-perp-chart,
+.cvd-chart {
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
+  background-color: #131722 !important;
+}
+
+/* Fix delta indicators header */
+#delta-indicators {
+  height: 30px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+  line-height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  background-color: #131722 !important;
+  border-top: 1px solid #2a2e39 !important;
+  border-bottom: 1px solid #2a2e39 !important;
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Fix chart containers to ensure their children are visible */
+.chart-panel-group > div {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+/* Fix canvas elements */
+canvas {
+  display: block !important;
+  position: absolute !important;
+}
+
+/* TV chart positioning */
+.tv-lightweight-charts {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+/* Force chart container visibility */
+div[class*="chart-container"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Remove any absolute positioning that might be hiding content */
+.absolute.top-4 {
+  position: absolute !important;
+  z-index: 50 !important;
+}
+
+/* Fix sidebar positioning */
+.w-64.border-r.border-\[#2a2e39\].overflow-y-auto,
+.w-72.border-l.border-\[#2a2e39\].overflow-y-auto {
+  height: calc(100vh - 50px) !important;
+  overflow-y: auto !important;
+}
+
+/* Fix mini charts */
+.border-b.border-\[#2a2e39\].p-2 {
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  overflow: hidden !important;
+}
+
+/* CRITICAL: Fix for charts that need z-index */
+.relative > .absolute {
+  z-index: 50 !important;
+}
+
+/* Move content higher to reduce space at top */
+.flex.flex-1.overflow-hidden > .flex-1.flex.flex-col.overflow-hidden > .flex-1.overflow-y-auto {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Remove all margins and padding from containers */
+.container {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Hide the chart header and footer */
+.chart-header, 
+.chart-footer {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Make sure headers and footers take no space */
+header, footer {
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+  display: none !important;
+}
+
+/* Ensure content fills viewport */
+.chart-page {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Remove padding from main content */
+main.flex-grow,
+.flex-grow {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure main chart container is visible and fills space */
+.chart-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Override any fixed positions that might create space */
+.chart-header {
+  position: static !important;
+}
+
+/* Hide the section divider that creates extra space */
+.section-divider {
+  display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Hide the section divider text */
+.section-divider-text {
+  display: none !important;
+}
+
+/* Hide the bottom info bar that shows trade metrics */
+.border-t.border-\[#2a2e39\].p-2.flex.justify-between.items-center.text-xs.text-\[#9fa9bc\] {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Only show the main header once */
+.bg-\[#131722\].border-b.border-\[#2a2e39\].py-2.px-4:not(:first-of-type) {
+  display: none !important;
+}
+
+/* Remove the space after delta indicators heading */
+#delta-indicators + div {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Hide any chart panel headers completely */
+.chart-panel-header {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Hide any "Delta Spot" text anywhere */
+div:contains("Delta Spot"),
+span:contains("Delta Spot"),
+.chart-panel-title {
+  display: none !important;
+}
+
+/* Make sure charts fill their containers */
+.chart-panel .h-full {
+  height: 100% !important;
+}
+
+/* Make the delta charts section scrollable and properly visible */
+.delta-charts-section {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  overflow: visible !important;
+  padding-bottom: 40px !important;
+}
+
+/* Make all chart panels visible, not just the first one */
+.chart-panel {
+  margin-bottom: 24px !important;
+  width: 100% !important;
+  border: 1px solid #2a2e39 !important;
+  background-color: #131722 !important;
+  border-radius: 4px !important;
+  overflow: visible !important;
+  min-height: 200px !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Force the space between delta charts */
+.space-y-6 > * + * {
+  margin-top: 24px !important;
+}
+
+/* Hide any text containing "Delta Spot" outside chart panels */
+div:not(.chart-panel):contains("Delta Spot") {
+  display: none !important;
+}
+
+/* Remove stats bar at the bottom */
+div:has(> span:contains("Interval:")),
+div:has(> div:contains("Trades/m")) {
+  display: none !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Hide "Crypto Market Dashboard" text in header */
+h1.text-xl.font-bold {
+  display: none !important;
+}
+
+/* Ensure all three delta charts are visible */
+.chart-panel:nth-child(1),
+.chart-panel:nth-child(2),
+.chart-panel:nth-child(3) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

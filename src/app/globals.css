@@ -1,26 +1,265 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-y: auto;
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1c2030;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2e39;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4050;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #2962ff;
+  outline-offset: 2px;
+}
+
+/* Better transitions */
+button, a {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Improved color for selection */
+::selection {
+  background-color: #2962ff50;
+  color: white;
+}
+
+/* CHART STYLES - BEGIN */
+
+/* Chart container classes */
+.chart-container {
+  width: 100%;
+  height: 100%;
+  min-height: 500px; /* Minimum height for the main chart container */
+  position: relative;
+}
+
+/* Fix for lightweight-charts containers */
+.tv-lightweight-charts,
+.lightweight-charts-container {
+  min-height: 100px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* OpenInterest chart specific */
+.open-interest-chart-container,
+.open-interest-chart {
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+}
+
+/* DeltaChart specific */
+.delta-chart {
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+}
+
+/* Chart type specific styles */
+.spot-chart,
+.perps-chart,
+.cvd-chart {
+  min-height: 150px;
+}
+
+/* Ensure that specific chart panels have minimum heights */
+#cvd-chart-container,
+.cvd-chart-container {
+  min-height: 150px !important;
+}
+
+/* Panel containers */
+.chart-panel {
+  min-height: 150px !important;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #2a2e39;
+  background-color: #131722;
+}
+
+/* Bottom panels container */
+.bottom-panels {
+  min-height: 350px !important;
+  display: grid;
+  grid-template-rows: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+/* Chart container for grid layout */
+.chart-grid {
+  display: grid;
+  grid-template-rows: minmax(150px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr);
+  gap: 16px;
+  min-height: 450px; /* 3 panels * 150px min */
+}
+
+/* Ensure parent containers have height */
+.chart-parent {
+  min-height: 650px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Candlestick chart specific styles */
+.candlestick-chart {
+  min-height: 500px !important;
+  width: 100%;
+}
+
+/* Main chart section with sticky positioning */
+.main-chart-section {
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+  background-color: #0f172a;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #2a2e39;
+}
+
+/* Section divider styling */
+.section-divider {
+  display: flex;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #2a2e39;
+}
+
+.section-divider-text {
+  padding: 0 1rem;
+  color: #afb5c4;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Delta Charts Section */
+.delta-charts-section {
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Chart panel header styling */
+.chart-panel-header {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #2a2e39;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1c2030;
+}
+
+.chart-panel-title {
+  font-weight: 500;
+  color: #afb5c4;
+  font-size: 0.875rem;
+}
+
+.chart-panel-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Ensure all chart components have proper dimensions */
+[class*="chart"] {
+  min-width: 100%;
+  min-height: 150px;
+}
+
+/* Force minimum heights for specific chart types */
+.delta-spot-chart {
+  min-height: 180px !important;
+}
+
+.delta-perps-chart {
+  min-height: 180px !important;
+}
+
+.cvd-chart {
+  min-height: 180px !important;
+}
+
+/* Making volume histogram bars taller */
+.volume-histogram-container {
+  transform: scaleY(2);
+  transform-origin: bottom;
+}
+
+/* Make open interest line more visible */
+.open-interest-line {
+  stroke-width: 4px !important;
+  opacity: 1 !important;
+}
+
+/* Override for zero-height containers */
+div[style*="height: 0px"] {
+  min-height: 150px !important;
+  height: 150px !important;
+}
+
+/* Fix for page layout and scrolling */
+main {
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+  min-height: 650px;
+  padding-bottom: 2rem;
+}
+
+/* Ensure the page has enough space to scroll */
+.chart-page-container {
+  min-height: 1200px;
+}
+
+/* Fix for price tag positioning */
+.price-tag {
+  position: absolute;
+  right: 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  z-index: 5;
+  background-color: rgba(19, 23, 34, 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(42, 46, 57, 0.7);
+}
+
+/* CHART STYLES - END */
