@@ -459,6 +459,23 @@ if (!existingData) {
         }
       }
       
+      // Try to fetch open interest data if not present
+      if (!chartData.openInterest || chartData.openInterest.length === 0) {
+        try {
+          console.log(`DataManager: Fetching open interest data for ${key}`);
+          const openInterestData = await this.safeGetOpenInterest(exchange, symbol);
+          
+          if (openInterestData.length > 0) {
+            chartData.openInterest = openInterestData;
+            console.log(`DataManager: Successfully added ${openInterestData.length} open interest entries`);
+          } else {
+            console.log(`DataManager: No open interest data available for ${key}`);
+          }
+        } catch (error) {
+          console.warn(`DataManager: Error fetching open interest data: ${error}`);
+        }
+      }
+      
       // Cache the data
       this.cachedChartData.set(key, chartData);
       this.cacheTimestamps.set(key, Date.now());
@@ -481,8 +498,9 @@ if (!existingData) {
       
       // Log data statistics
       if (this.debugMode) {
-        const { spotCandles } = chartData;
+        const { spotCandles, openInterest } = chartData;
         console.log(`DataManager: Initialized ${spotCandles.length} candles for ${key}`);
+        console.log(`DataManager: Loaded ${openInterest?.length || 0} open interest entries for ${key}`);
         if (spotCandles.length > 0) {
           const firstTime = this.ensureSeconds(spotCandles[0].time);
           const lastTime = this.ensureSeconds(spotCandles[spotCandles.length - 1].time);
@@ -563,16 +581,31 @@ if (!existingData) {
   /**
    * Safely get open interest data without throwing errors
    */
-  // With this:
-// Around line 507
-private async safeGetOpenInterest(exchange: string, symbol: string): Promise<OpenInterest[]> {
-  try {
-    return await aggregatorService.getAggregatedOpenInterest(symbol, '1d');
-  } catch (error) {
-    console.warn(`DataManager: Error getting open interest for ${exchange}:${symbol}:`, error);
-    return [];
+  private async safeGetOpenInterest(exchange: string, symbol: string): Promise<OpenInterest[]> {
+    try {
+      // Try to get exchange-specific service
+      const exchangeService = aggregatorService.getExchangeByName(exchange as Exchange);
+      if (!exchangeService) {
+        console.warn(`Exchange ${exchange} not found for open interest fetch`);
+        return [];
+      }
+      
+      // If the exchange service has a method to get open interest, use it
+      if (typeof exchangeService.getOpenInterest === 'function') {
+        console.log(`Fetching open interest from ${exchange} for ${symbol}`);
+        const openInterestData = await exchangeService.getOpenInterest(symbol, '1m', 100);
+        console.log(`Received ${openInterestData.length} open interest entries`);
+        return openInterestData;
+      }
+      
+      // Fallback to aggregator
+      console.log(`Falling back to aggregator for open interest data`);
+      return await aggregatorService.getAggregatedOpenInterest(symbol, '1m');
+    } catch (error) {
+      console.warn(`DataManager: Error getting open interest for ${exchange}:${symbol}:`, error);
+      return [];
+    }
   }
-}
 
   /**
    * Calculate volume data from candles

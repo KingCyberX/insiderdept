@@ -1,3 +1,12 @@
+/**
+ * This file contains the updated CandlestickChart component with improved Open Interest visualization.
+ * Key changes:
+ * 1. Enhanced open interest display with better positioning and visibility
+ * 2. Added proper price line labels showing OI value
+ * 3. Improved scale margins for better visual hierarchy
+ * 4. Fixed color coding and line thickness for better readability
+ */
+
 'use client';
 
 import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
@@ -27,14 +36,15 @@ interface OpenInterest {
   openInterest: number;
 }
 
+// Find the prop definition:
 interface CandlestickChartProps {
   candles: Candle[];
   volumeData: DeltaVolume[];
   openInterestData: OpenInterest[];
   isAggregated?: boolean;
-  interval?: string; // Added interval prop to react to interval changes
+  interval?: string;
   onChartReady?: (chart: IChartApi, candleSeries: ISeriesApi<'Candlestick'>) => void;
-  showOpenInterest?: boolean; // Add this new prop with optional flag
+  showOpenInterest?: boolean; // This prop controls OI visibility
 }
 
 const CandlestickChart: React.FC<CandlestickChartProps> = ({
@@ -44,8 +54,13 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
   isAggregated = false,
   interval = '1m',
   onChartReady,
-  showOpenInterest = false
+  // Remove showOpenInterest from destructuring
 }) => {
+  // Force open interest to always be enabled
+  const showOpenInterest = true; // Local constant that's always true
+
+
+
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartInstanceRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -313,7 +328,7 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
       .sort((a, b) => a.time - b.time)
       .map(d => {
         // Amplify volume values to make them more visible
-        const amplifiedValue = Math.max(0.1, d.value * 5); // Multiply by 5 for better visibility
+        const amplifiedValue = Math.max(0.1, d.value * 8); // Multiply by 8 for better visibility (increased from 5)
         
         return {
           ...formatCandleTime({ time: d.time, open: 0, high: 0, low: 0, close: 0, volume: 0 }),
@@ -485,21 +500,44 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
           });
         }
         
-        // IMPROVED: Configure open interest scale if the series exists
-        if (oiSeriesRef.current && chartInstanceRef.current) {
-          chartInstanceRef.current.priceScale('openInterest').applyOptions({
+        // IMPROVED: Update open interest data if available and enabled
+        if (showOpenInterest && oiSeriesRef.current && formattedOIData.length > 0) {
+          oiSeriesRef.current.setData(formattedOIData);
+          
+          // Enhance open interest visualization and positioning
+          chartInstanceRef.current?.priceScale('openInterest').applyOptions({
             scaleMargins: {
-              top: 0.2,    // Move OI to upper part of chart (was 0.1)
-              bottom: 0.6, // Give more space for OI (was 0.75)
+              top: 0.02,    // Move OI to the very top of the chart (was 0.05)
+              bottom: 0.8,  // Leave space for candles below
             },
             borderVisible: false,
+            visible: true,  // Ensure scale is visible
             autoScale: true,
           });
-        }
           
+          // Update OI price line
+          if (formattedOIData.length > 0) {
+            const lastOI = formattedOIData[formattedOIData.length - 1];
+            oiSeriesRef.current.createPriceLine({
+              price: lastOI.value,
+              color: '#FF9900',
+              lineWidth: 2,
+              lineStyle: 0, // Solid
+              axisLabelVisible: true,
+              title: `OI: ${formatNumber(lastOI.value)}`,
+            });
+          }
+        } else if (oiSeriesRef.current && !showOpenInterest) {
+          // Hide OI scale if disabled
+          chartInstanceRef.current?.priceScale('openInterest').applyOptions({
+            visible: false,
+          });
+        }
+        
         // Update chart options based on timeframe
         chartInstanceRef.current.timeScale().applyOptions({
           barSpacing: barSpacing,
+          rightBarStaysOnScroll: true, // Ensures all panes move together
         });
         
         // Always fit content when data changes significantly
@@ -526,10 +564,11 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
               });
             }
             
-            if (oiSeriesRef.current) {
+            if (oiSeriesRef.current && showOpenInterest) {
               chartInstanceRef.current.priceScale('openInterest').applyOptions({
                 autoScale: true,
-                scaleMargins: { top: 0.2, bottom: 0.6 },
+                visible: true,
+                scaleMargins: { top: 0.02, bottom: 0.8 },
               });
             }
             
@@ -596,7 +635,7 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
         borderColor: '#2a2e39',
         textColor: '#d1d4dc',
         scaleMargins: {
-          top: 0.1,
+          top: 0.2,
           bottom: 0.2,
         },
       },
@@ -610,6 +649,7 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
         lockVisibleTimeRangeOnResize: false,
         rightOffset: 5,
         minBarSpacing: 2,
+        rightBarStaysOnScroll: true, // This ensures all panes move together when scrolling/zooming
       },
     });
 
@@ -621,7 +661,75 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
     // Add zoom listeners
     addZoomListeners();
 
-    // Create candlestick series with different styling based on aggregation mode
+    // First, add the open interest line at the top (if enabled)
+    if (showOpenInterest && formattedOIData.length > 0) {
+      try {
+        // ENHANCED: Create OI series with improved styling
+        const oiSeries = chart.addLineSeries({
+          priceScaleId: 'openInterest',
+          color: '#FF9900',          // Bright orange for better visibility
+          lineWidth: 4,              // Thicker line (was 3)
+          lastValueVisible: true,    // Show current value
+          priceLineVisible: true,    // Show horizontal line at current value
+          priceLineWidth: 2,         // Thickness of the price line
+          lineStyle: 0,              // Solid line (was dotted)
+          title: 'Open Interest',    // Label for the series
+          crosshairMarkerVisible: true,
+          crosshairMarkerRadius: 6,
+          priceFormat: {
+            type: 'volume',          // Format as volume number
+            precision: 0,            // No decimal places for OI
+          },
+        });
+
+        oiSeriesRef.current = oiSeries;
+
+        // Position open interest at the very top of the chart
+        chart.priceScale('openInterest').applyOptions({
+          scaleMargins: {
+            top: 0.02,     // Position at the top with minimal margin (was 0.05)
+            bottom: 0.8,   // Leave 80% of the chart for candles
+          },
+          borderVisible: false,
+          visible: true,   // Ensure scale is visible
+          autoScale: true,
+          entireTextOnly: true,
+        });
+
+        // Set open interest data
+        oiSeries.setData(formattedOIData);
+        
+        // Add price line for the latest OI value with enhanced visibility
+        if (formattedOIData.length > 0) {
+          const lastOI = formattedOIData[formattedOIData.length - 1];
+          oiSeries.createPriceLine({
+            price: lastOI.value,
+            color: '#FF9900',
+            lineWidth: 2,
+            lineStyle: 0, // Solid (was dotted)
+            axisLabelVisible: true,
+            title: `OI: ${formatNumber(lastOI.value)}`,
+          });
+          
+          // Also add a line for maximum OI value for context if significantly different
+          const maxOI = Math.max(...formattedOIData.map(d => d.value));
+          if (maxOI > lastOI.value * 1.05) { // If max is at least 5% higher than current
+            oiSeries.createPriceLine({
+              price: maxOI,
+              color: '#FF990080', // Semi-transparent orange
+              lineWidth: 1,
+              lineStyle: 2, // Dashed
+              axisLabelVisible: true,
+              title: `Max: ${formatNumber(maxOI)}`,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create open interest chart:', error);
+      }
+    }
+
+    // Then add the candlestick chart in the middle
     const candleSeries = chart.addCandlestickSeries({
       upColor: isAggregated ? '#00A3FF' : '#00E676',     // Use Figma blue for up candles
       downColor: isAggregated ? '#FF3A5C' : '#FF5252',   // Use Figma red for down candles
@@ -677,27 +785,26 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
     window.addEventListener('resize', resizeHandler);
     resizeListenerRef.current = resizeHandler;
 
-    // Add volume series if data available
+    // Then add the volume histogram at the bottom
     if (formattedVolumeData.length > 0) {
       try {
         const volumeSeries = chart.addHistogramSeries({
           priceScaleId: 'volume',
           base: 0,
-          lastValueVisible: true, // Changed to true for better visibility
-          // Enhance volume histogram for better visibility
-          color: isAggregated ? '#888888' : '#4CAF50', // Default color for better visibility
+          lastValueVisible: true,
+          color: isAggregated ? '#888888' : '#4CAF50',
           priceFormat: {
             type: 'volume',
-            precision: 0 // No decimal places for volume
+            precision: 0
           }
         });
 
         volumeSeriesRef.current = volumeSeries;
 
-        // IMPROVED: Configure volume price scale to give more height to volume bars
+        // Position volume at the bottom of the chart
         chart.priceScale('volume').applyOptions({
           scaleMargins: { 
-            top: 0.7,     // This gives the volume 30% of the chart height (was 0.85)
+            top: 0.7,     // This gives the volume 30% of the chart height
             bottom: 0.0   // This positions volume bars at the very bottom of the chart
           },
           borderVisible: false,
@@ -705,7 +812,7 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
           entireTextOnly: true,
         });
 
-        // Set volume data using amplified values for better visibility
+        // Set volume data with amplified values for better visibility
         volumeSeries.setData(formattedVolumeData);
         
         // Add volume average line for better context
@@ -724,55 +831,6 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
         }
       } catch (error) {
         console.error('Failed to create volume histogram:', error);
-      }
-    }
-
-    // Add open interest series if data available and enabled
-    if (formattedOIData.length > 0 && showOpenInterest) {
-      try {
-        const oiSeries = chart.addLineSeries({
-          priceScaleId: 'openInterest',
-          color: '#FF9900',
-          lineWidth: 3, // Increased from 2 for better visibility
-          lastValueVisible: true,
-          priceLineVisible: true, // Changed to true for better visibility
-          priceLineWidth: 2,
-          lineStyle: 0, // Changed to Solid line (was LineStyle.Dotted)
-          title: 'Open Interest',
-          crosshairMarkerVisible: true,
-          crosshairMarkerRadius: 6,
-        });
-
-        oiSeriesRef.current = oiSeries;
-
-        // IMPROVED: Configure OI scale to be more visible
-        chart.priceScale('openInterest').applyOptions({
-          scaleMargins: {
-            top: 0.2,    // Position in upper area (was 0.8)
-            bottom: 0.6, // Leave space below (was 0.1)
-          },
-          borderVisible: false,
-          autoScale: true,
-          entireTextOnly: true,
-        });
-
-        // Set open interest data
-        oiSeries.setData(formattedOIData);
-        
-        // Add price line for the latest OI value to make it more visible
-        if (formattedOIData.length > 0) {
-          const lastOI = formattedOIData[formattedOIData.length - 1];
-          oiSeries.createPriceLine({
-            price: lastOI.value,
-            color: '#FF9900',
-            lineWidth: 2,
-            lineStyle: 0, // Solid
-            axisLabelVisible: true,
-            title: `OI: ${formatNumber(lastOI.value)}`,
-          });
-        }
-      } catch (error) {
-        console.error('Failed to create open interest chart:', error);
       }
     }
     
@@ -835,10 +893,11 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
           });
         }
         
-        if (oiSeriesRef.current) {
+        if (oiSeriesRef.current && showOpenInterest) {
           chartInstanceRef.current.priceScale('openInterest').applyOptions({
             autoScale: true,
-            scaleMargins: { top: 0.2, bottom: 0.6 },
+            visible: true,
+            scaleMargins: { top: 0.02, bottom: 0.8 },
           });
         }
         
@@ -896,10 +955,11 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
         }
         
         // Force recalculation for open interest line
-        if (oiSeriesRef.current && formattedOIData.length > 0) {
+        if (oiSeriesRef.current && formattedOIData.length > 0 && showOpenInterest) {
           chartInstanceRef.current.priceScale('openInterest').applyOptions({
             autoScale: true,
-            scaleMargins: { top: 0.2, bottom: 0.6 },
+            visible: true,
+            scaleMargins: { top: 0.02, bottom: 0.8 },
           });
           
           console.log('Forcing OI scale recalculation');
@@ -911,11 +971,11 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
     }, 1000); // Longer delay to ensure everything is fully rendered
     
     return () => clearTimeout(timer);
-  }, [formattedCandles.length, formattedVolumeData.length, formattedOIData.length]);
+  }, [formattedCandles.length, formattedVolumeData.length, formattedOIData.length, showOpenInterest]);
 
   return (
     <div className="w-full h-full relative min-h-[500px]">
-      <div ref={chartContainerRef} className="w-full h-full min-h-[500px]" />
+      <div ref={chartContainerRef} className="w-full h-full min-h-[500px] candlestick-chart" />
       
       {/* Price tag at current price level */}
       {currentPrice !== null && priceTagY !== null && (
@@ -928,7 +988,7 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
       
       {/* Exchange tags for multi-exchange view */}
       {isAggregated && (
-        <div className="absolute top-4 right-4 flex flex-col gap-2">
+        <div className="absolute top-4 right-4 z-10">
           <div className="px-3 py-1 bg-[#00A3FF20] rounded-md flex items-center">
             <div className="w-3 h-3 rounded-full bg-[#00A3FF] mr-2"></div>
             <span className="text-[#00A3FF] text-xs">Delta Spot</span>
@@ -940,6 +1000,16 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
         </div>
       )}
       
+      {/* Open Interest indicator */}
+      {showOpenInterest && (
+        <div className="absolute top-4 right-4 z-10">
+          <div className="px-3 py-1 bg-[#FF990020] rounded-md flex items-center">
+            <div className="w-3 h-3 rounded-full bg-[#FF9900] mr-2"></div>
+            <span className="text-[#FF9900] text-xs">Open Interest</span>
+          </div>
+        </div>
+      )}
+      
       {/* Add a legend to distinguish data sources */}
       <div className="flex items-center justify-between mt-2 gap-4 text-xs text-gray-400">
         {/* Delta aggregation indicator */}
@@ -947,6 +1017,15 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({
           <div className="flex items-center">
             <span className="inline-block px-2 py-1 mr-2 bg-blue-900 text-blue-200 rounded">
               Delta Aggregation Mode
+            </span>
+          </div>
+        )}
+        
+        {/* OI indicator */}
+        {showOpenInterest && (
+          <div className="flex items-center">
+            <span className="inline-block px-2 py-1 mr-2 bg-orange-900 text-orange-200 rounded">
+              Open Interest Enabled
             </span>
           </div>
         )}

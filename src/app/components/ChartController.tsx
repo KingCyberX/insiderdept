@@ -7,14 +7,8 @@ import ConnectionStatus from './controls/ConnectionStatus';
 import ErrorDisplay from './controls/ErrorDisplay';
 import ExchangeSelector from './controls/ExchangeSelector';
 import MiniChartPanel from './chart/MiniChartPanel';
-// Fix the import path - adjust according to your project structure
 import SymbolSidebar from '../components/sidebar/SymbolSidebar';
-import OpenInterestToggle from './controls/OpenInterestToggle';
-// Add this import at the top with your other imports
-
 import ChartPanelGroup from './chart/ChartPanelGroup';
-
-// Fixed import - use named import as a fallback mechanism if default import fails
 import dataManagerImport, { dataManager } from '../services/dataManager';
 import socketService from '../services/socketService';
 import apiService from '../services/apiService';
@@ -153,9 +147,7 @@ const ChartController: React.FC<ChartControllerProps> = ({
   // Aggregation state
   const [deltaAggregationEnabled, setDeltaAggregationEnabled] = useState(false);
   
-  // Open Interest state
-  const [showOpenInterest, setShowOpenInterest] = useState<boolean>(false);
-  
+
   // Sidebar visibility (new states)
   const [showSymbolSidebar, setShowSymbolSidebar] = useState(true);
   const [showExchangePanels, setShowExchangePanels] = useState(true);
@@ -625,13 +617,6 @@ const ChartController: React.FC<ChartControllerProps> = ({
     clearErrors();
   }, [exchange, symbol, interval, isDataManagerReady, clearErrors]);
   
-  /**
-   * Handle Open Interest toggle
-   */
-  const handleOpenInterestToggle = useCallback(() => {
-    console.log(`Open Interest display ${!showOpenInterest ? 'enabled' : 'disabled'}`);
-    setShowOpenInterest(prev => !prev);
-  }, [showOpenInterest]);
   
   // Function to check if a symbol is eligible for delta aggregation
   const isSymbolEligibleForAggregation = useCallback((symbol: string): boolean => {
@@ -1065,14 +1050,7 @@ const ChartController: React.FC<ChartControllerProps> = ({
                   showDeltaButton={isAggregationEligible}
                   deltaEnabled={deltaAggregationEnabled}
                   onDeltaToggle={toggleDeltaAggregation}
-                />
-                
-                <OpenInterestToggle 
-                  isEnabled={showOpenInterest}
-                  onToggle={handleOpenInterestToggle}
-                  className="ml-2"
-                />
-                
+                />                
                 <button 
                   className="bg-[#1c2030] text-[#afb5c4] px-3 py-1.5 rounded-md text-sm"
                   onClick={() => {}}
@@ -1125,11 +1103,6 @@ const ChartController: React.FC<ChartControllerProps> = ({
                   Aggregated Delta
                 </span>
               )}
-              {showOpenInterest && (
-                <span className="ml-2 px-2 py-0.5 text-xs bg-purple-900 text-purple-200 rounded-full">
-                  Open Interest
-                </span>
-              )}
             </div>
             
             {/* Connection status */}
@@ -1168,13 +1141,13 @@ const ChartController: React.FC<ChartControllerProps> = ({
       
       return (
         <ChartPanelGroup 
-          candles={candles} 
-      openInterestData={openInterest} 
-      deltaData={deltaVolume} 
-      interval={interval} 
-      isAggregated={isAggregated} 
-      showOpenInterest={showOpenInterest}
-        />
+  candles={candles} 
+  openInterestData={openInterest} 
+  deltaData={deltaVolume} 
+  interval={interval} 
+  isAggregated={isAggregated} 
+  showOpenInterest={true}
+/>
       );
     })()
   ) : (

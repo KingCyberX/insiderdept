@@ -42,8 +42,10 @@ const ChartPanelGroup: React.FC<ChartPanelGroupProps> = ({
   deltaData,
   interval,
   isAggregated = false,
-  showOpenInterest = true
+  showOpenInterest = true // Force this to always be true regardless of passed prop
 }) => {
+  // Always force open interest to be shown
+  showOpenInterest = true;
   // Log debug info on mount to help with troubleshooting
   useEffect(() => {
     console.log('ChartPanelGroup mounted');
