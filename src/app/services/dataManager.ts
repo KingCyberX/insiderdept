@@ -610,18 +610,21 @@ if (!existingData) {
   /**
    * Calculate volume data from candles
    */
-  private calculateDeltaVolume(candles: ExtendedCandle[]): DeltaVolume[] {
+  private calculateDeltaVolume(candles: Candle[]): DeltaVolume[] {
     return candles.map(candle => {
       const delta = candle.close - candle.open;
-      
-      // Use the same timestamp format as the candle (already normalized)
+  
+      // Signed volume: negative if candle closed lower
+      const signedVolume = delta >= 0 ? candle.volume : -candle.volume;
+  
       return {
         time: candle.time,
-        value: Math.abs(delta * candle.volume) / 100, // Scale volume by price change magnitude
-        color: delta >= 0 ? '#26a69a' : '#ef5350'
+        value: signedVolume,
+        color: delta >= 0 ? '#26a69a' : '#ef5350' // Optional for visuals
       };
     });
   }
+  
 
   /**
    * Get current data for a specific market

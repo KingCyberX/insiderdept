@@ -54,10 +54,10 @@ const MiniChartPanel: React.FC<MiniChartPanelProps> = ({
     
     // Add series
     const candleSeries = chart.addCandlestickSeries({
-      upColor: '#00E676',
-      downColor: '#FF5252',
-      wickUpColor: '#00E676',
-      wickDownColor: '#FF5252',
+      upColor: "#95D4FA",
+      downColor: "#FDBCD2",
+      wickUpColor: "#95D4FA",
+      wickDownColor: "#FDBCD2",
       borderVisible: false,
     });
     
@@ -89,10 +89,10 @@ const MiniChartPanel: React.FC<MiniChartPanelProps> = ({
         close: c.close,
       }));
       
-      const formattedVolumes = data.candles.map(c => ({
-        time: (c.time as number) as UTCTimestamp,
+      const formattedVolumes = data.candles.map((c) => ({
+        time: c.time as number as UTCTimestamp,
         value: c.volume,
-        color: c.close > c.open ? '#00E676' : '#FF5252',
+        color: c.close > c.open ? "#95D4FA" : "#EF6D9F",
       }));
       
       // Set data
@@ -138,7 +138,7 @@ const MiniChartPanel: React.FC<MiniChartPanelProps> = ({
         volumeData.push({
           time: time as UTCTimestamp,
           value: Math.random() * 100,
-          color: close > open ? '#00E676' : '#FF5252',
+          color: close > open ? "#95D4FA" : "#EF6D9F",
         });
         
         price = close;

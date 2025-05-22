@@ -196,7 +196,6 @@ class BinanceConnector {
     }
   }
   
-  module.exports = BinanceConnector;
 
 // Added export
 export default BinanceConnector;
