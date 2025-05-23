@@ -2,7 +2,7 @@
 
 import React from "react";
 import SymbolScreener from "../_components/screener/SymbolScreener";
-import { ScreenerFilters, Exchange } from "../services/screenerService";
+import { ScreenerFilters, Exchange } from "../services/screenerService
 import { useSearchParams } from "next/navigation";
 
 export default function ScreenerPage() {

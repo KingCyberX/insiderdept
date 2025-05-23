@@ -1,6 +1,6 @@
 @import "tailwindcss/preflight";
+@import "tailwindcss/components";
 @import "tailwindcss/utilities";
-
 body {
   background-color: #0f172a;
   color: #e2e8f0;
@@ -34,7 +34,8 @@ body {
 }
 
 /* Better transitions */
-button, a {
+button,
+a {
   transition: all 0.2s ease-in-out;
 }
 
@@ -154,7 +155,7 @@ button, a {
 
 .section-divider::before,
 .section-divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background-color: #2a2e39;
